@@ -31,37 +31,39 @@ log.basicConfig(level=DEBUG if opts.get('debug') else INFO, format=LOG_FORMAT)
 
 translate = {Key.right: "Right", Key.left: "Left"}
 
+
 class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
 
-  def do_GET(self):
+    def do_GET(self):
 
-    self.send_response(200)
-    self.send_header('Content-type','text/html')
-    self.end_headers()
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
 
-    message = "hi"
-    key = None
+        message = "hi"
+        key = None
 
-    if self.path.startswith('/next'):
-        key = Key.right
-    elif self.path.startswith('/prev'):
-        key = Key.left
-    else:
-        params = urllib.parse.parse_qs(self.path[self.path.find('?')+1:])
-        print('params', params)
-        if 'data' in params:
-            if params['data'] == ['00']:
-                key = Key.left
-            elif params['data'] == ['01']:
-                key = Key.right
+        if self.path.startswith('/next'):
+            key = Key.right
+        elif self.path.startswith('/prev'):
+            key = Key.left
+        else:
+            params = urllib.parse.parse_qs(self.path[self.path.find('?')+1:])
+            print('params', params)
+            if 'data' in params:
+                if params['data'] == ['00']:
+                    key = Key.left
+                elif params['data'] == ['01']:
+                    key = Key.right
 
-    if key:
-        keyboard.press(key)
-        keyboard.release(key)
-        message = "key " + translate[key]
+        if key:
+            keyboard.press(key)
+            keyboard.release(key)
+            message = "key " + translate[key]
 
-    self.wfile.write(bytes(message, "utf8"))
-    return
+        self.wfile.write(bytes(message, "utf8"))
+        return
+
 
 log.info('starting server...')
 port = opts.get('port', 8080)
